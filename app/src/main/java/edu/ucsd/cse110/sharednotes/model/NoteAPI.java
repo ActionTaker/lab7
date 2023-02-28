@@ -7,6 +7,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
 
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -50,32 +53,36 @@ public class NoteAPI {
     }
 
     public void put(String title, String msg) {
+        Log.d("oh no", "running put");
         // URLs cannot contain spaces, so we replace them with %20.
         title = title.replace(" ", "%20");
 
-        MediaType MEDIA_TYPE_MARKDOWN
-                = MediaType.parse("text/x-markdown; charset=utf-8");
+        String json = "{\"content\":\"" + msg + "\",\"updated_at\":\"" + System.currentTimeMillis() + "\"}";
 
+        MediaType JSON
+                = MediaType.get("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(json, JSON);
 
         var request = new Request.Builder()
                 .url("https://sharednotes.goto.ucsd.edu/notes/" + title)
-                .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, msg))
+                .method("PUT", body)
                 .build();
 
         try (var response = client.newCall(request).execute()) {
             assert response.body() != null;
-            var body = response.body().string();
-            Log.i("", body);
+            var responseData = response.body().string();
+            Log.i("", responseData);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     /**
      * An example of sending a GET request to the server.
      *
      * The /echo/{msg} endpoint always just returns {"message": msg}.
      */
-    public LiveData<Note> get(String title, LiveData<Note> liveNote) {
+    public Note get(String title) {
         // URLs cannot contain spaces, so we replace them with %20.
         title = title.replace(" ", "%20");
 
@@ -87,12 +94,12 @@ public class NoteAPI {
         try (var response = client.newCall(request).execute()) {
             assert response.body() != null;
             var body = response.body().string();
-            MutableLiveData<Note> mlivedata = (MutableLiveData<Note>) liveNote;
-
-            return mlivedata;
-            Log.i("ECHO", body);
+            Log.d("test-title", title);
+            Log.d("test", body);
+            return Note.fromJSON(body);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    return liveNote}
+        return new Note(title, "");
+    }
 }

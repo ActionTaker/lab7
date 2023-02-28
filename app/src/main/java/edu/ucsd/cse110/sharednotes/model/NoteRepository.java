@@ -1,17 +1,28 @@
 package edu.ucsd.cse110.sharednotes.model;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class NoteRepository {
     private final NoteDao dao;
+    private final NoteAPI api;
+    private ScheduledExecutorService scheduler;
+    private ScheduledFuture<?> scheduledFuture = null;
 
     public NoteRepository(NoteDao dao) {
         this.dao = dao;
+        this.api = new NoteAPI();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     // Synced Methods
@@ -33,6 +44,8 @@ public class NoteRepository {
 
         Observer<Note> updateFromRemote = theirNote -> {
             var ourNote = note.getValue();
+            Log.d("update", ""+ourNote.updatedAt);
+            Log.d("update", ""+theirNote.updatedAt);
             if (ourNote == null || ourNote.updatedAt < theirNote.updatedAt) {
                 upsertLocal(theirNote);
             }
@@ -80,16 +93,35 @@ public class NoteRepository {
     // ==============
 
     public LiveData<Note> getRemote(String title) {
-        NoteAPI api = new NoteAPI();
+        // TODO: Implement getRemote!
+        // TODO: Set up polling background thread (MutableLiveData?)
+        // TODO: Refer to TimerService from https://github.com/DylanLukes/CSE-110-WI23-Demo5-V2.
 
-        return api.get(title, getLocal(title));
+        // Start by fetching the note from the server ONCE.
+        // Then, set up a background thread that will poll the server every 3 seconds.
+        // You may (but don't have to) want to cache the LiveData's for each title, so that
+        // you don't create a new polling thread every time you call getRemote with the same title.
+        MutableLiveData<Note> liveData = new MutableLiveData<>();
+
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+        }
+        scheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                liveData.postValue(api.get(title));
+            }
+        }, 0, 3, TimeUnit.SECONDS);
+
+        return liveData;
     }
 
     public void upsertRemote(Note note) {
-        NoteAPI api = new NoteAPI();
-        api.put(note.title, note.content);
-
-        // TODO: Implement upsersRemote!
-        throw new UnsupportedOperationException("Not implemented yet");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                api.put(note.title, note.content);
+            }
+        }).start();
     }
 }
