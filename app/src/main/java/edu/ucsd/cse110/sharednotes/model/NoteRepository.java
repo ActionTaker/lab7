@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,8 +45,6 @@ public class NoteRepository {
 
         Observer<Note> updateFromRemote = theirNote -> {
             var ourNote = note.getValue();
-            Log.d("update", ""+ourNote.updatedAt);
-            Log.d("update", ""+theirNote.updatedAt);
             if (ourNote == null || ourNote.updatedAt < theirNote.updatedAt) {
                 upsertLocal(theirNote);
             }
@@ -97,6 +96,7 @@ public class NoteRepository {
         // TODO: Set up polling background thread (MutableLiveData?)
         // TODO: Refer to TimerService from https://github.com/DylanLukes/CSE-110-WI23-Demo5-V2.
 
+        Log.d("test new", "getRemote");
         // Start by fetching the note from the server ONCE.
         // Then, set up a background thread that will poll the server every 3 seconds.
         // You may (but don't have to) want to cache the LiveData's for each title, so that
@@ -104,12 +104,17 @@ public class NoteRepository {
         MutableLiveData<Note> liveData = new MutableLiveData<>();
 
         if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
+            scheduledFuture.cancel(false);
         }
         scheduledFuture = scheduler.scheduleAtFixedRate(new Runnable() {
+            String prevContent = api.get(title).content;
             @Override
             public void run() {
-                liveData.postValue(api.get(title));
+                Note currNote = api.get(title);
+                if (!Objects.equals(prevContent, currNote.content)) {
+                    liveData.postValue(currNote);
+                    prevContent = currNote.content;
+                }
             }
         }, 0, 3, TimeUnit.SECONDS);
 

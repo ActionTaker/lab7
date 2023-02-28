@@ -149,6 +149,8 @@ public class ListActivity extends AppCompatActivity {
             var title = input.getText().toString();
             var note = viewModel.getOrCreateNote(title);
 
+            Log.d("test new", "setupInput");
+
             // ...wait for the database to finish persisting it...
             note.observe(this, noteEntity -> {
                 // ...and launch NoteActivity with it.

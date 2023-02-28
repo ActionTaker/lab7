@@ -1,6 +1,7 @@
 package edu.ucsd.cse110.sharednotes.viewmodel;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
