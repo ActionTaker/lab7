@@ -2,6 +2,7 @@ package edu.ucsd.cse110.sharednotes.model;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.List;
@@ -79,11 +80,15 @@ public class NoteRepository {
     // ==============
 
     public LiveData<Note> getRemote(String title) {
-        // TODO: Implement getRemote!
-        throw new UnsupportedOperationException("Not implemented yet");
+        NoteAPI api = new NoteAPI();
+
+        return api.get(title, getLocal(title));
     }
 
     public void upsertRemote(Note note) {
+        NoteAPI api = new NoteAPI();
+        api.put(note.title, note.content);
+
         // TODO: Implement upsersRemote!
         throw new UnsupportedOperationException("Not implemented yet");
     }

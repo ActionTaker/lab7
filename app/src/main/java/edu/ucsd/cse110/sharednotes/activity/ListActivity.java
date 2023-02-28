@@ -18,6 +18,7 @@ import android.widget.EditText;
 
 import edu.ucsd.cse110.sharednotes.R;
 import edu.ucsd.cse110.sharednotes.model.Note;
+import edu.ucsd.cse110.sharednotes.model.NoteAPI;
 import edu.ucsd.cse110.sharednotes.view.NotesAdapter;
 import edu.ucsd.cse110.sharednotes.viewmodel.ListViewModel;
 
@@ -82,9 +83,10 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Set the content view to be the main layout.
         setContentView(R.layout.activity_list);
+
+
 
         // Note: we are avoiding storing viewModel and adapter in fields we access later. This is
         // because fields are mutable, and mutable state is hard to reason about. They could be
