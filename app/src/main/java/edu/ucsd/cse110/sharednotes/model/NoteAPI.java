@@ -46,14 +46,12 @@ public class NoteAPI {
         try (var response = client.newCall(request).execute()) {
             assert response.body() != null;
             var body = response.body().string();
-            Log.i("DELETE", body);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void put(String title, String msg) {
-        Log.d("oh no", "running put");
         // URLs cannot contain spaces, so we replace them with %20.
         title = title.replace(" ", "%20");
 
@@ -71,7 +69,6 @@ public class NoteAPI {
         try (var response = client.newCall(request).execute()) {
             assert response.body() != null;
             var responseData = response.body().string();
-            Log.i("", responseData);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -94,8 +91,6 @@ public class NoteAPI {
         try (var response = client.newCall(request).execute()) {
             assert response.body() != null;
             var body = response.body().string();
-            Log.d("test-title", title);
-            Log.d("test", body);
             return Note.fromJSON(body);
         } catch (Exception e) {
             e.printStackTrace();

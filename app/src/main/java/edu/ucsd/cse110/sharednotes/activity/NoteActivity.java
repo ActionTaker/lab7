@@ -3,6 +3,7 @@ package edu.ucsd.cse110.sharednotes.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import edu.ucsd.cse110.sharednotes.R;
@@ -46,6 +48,7 @@ public class NoteActivity extends AppCompatActivity {
         // Set up the contents to update.
         note.observe(this, this::onNoteChanged);
     }
+
 
     private NoteViewModel setupViewModel() {
         return new ViewModelProvider(this).get(NoteViewModel.class);
